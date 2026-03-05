@@ -1,18 +1,12 @@
 <?php
 
-namespace Ultraware\Roles\Traits;
+namespace Endone777\Roles\Traits;
 
 use Illuminate\Support\Str;
 
 trait Slugable
 {
-    /**
-     * Set slug attribute.
-     *
-     * @param string $value
-     * @return void
-     */
-    public function setSlugAttribute($value)
+    public function setSlugAttribute(string $value): void
     {
         $this->attributes['slug'] = Str::slug($value, config('roles.separator'));
     }

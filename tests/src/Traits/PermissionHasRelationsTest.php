@@ -1,44 +1,39 @@
 <?php
 
-use App\User;
-use Ultraware\Roles\Models\Permission;
-use Ultraware\Roles\Models\Role;
+namespace Endone777\Roles\Tests\Traits;
 
-class PermissionHasRelationsTest extends \TestCase
+use Endone777\Roles\Models\Permission;
+use Endone777\Roles\Models\Role;
+use Endone777\Roles\Tests\TestCase;
+use Endone777\Roles\Tests\User;
+
+class PermissionHasRelationsTest extends TestCase
 {
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
-        $this->withFactories(__DIR__ . '/../../database/factories');
         $this->runMigrations();
     }
 
-    /**
-     * Define environment setup.
-     *
-     * @param  \Illuminate\Foundation\Application $app
-     * @return void
-     */
-    protected function getEnvironmentSetUp($app)
+    protected function getEnvironmentSetUp($app): void
     {
-        $this->setupDbConfig($app);
         parent::getEnvironmentSetUp($app);
+        $app['config']->set('auth.providers.users.model', User::class);
     }
 
-    public function testPermissionHasRoles()
+    public function test_permission_has_roles(): void
     {
-        $role = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create();
+        $role = Role::factory()->create();
+        $permission = Permission::factory()->create();
         $role->permissions()->attach($permission);
         $this->assertEquals($role->id, $permission->roles->first()->id);
         $this->assertEquals($role->slug, $permission->roles->first()->slug);
     }
 
-    public function testPermissionHasUsers()
+    public function test_permission_has_users(): void
     {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        $permission = factory(Permission::class)->create();
+        $user = User::factory()->create();
+        $permission = Permission::factory()->create();
         $user->userPermissions()->attach($permission);
         $this->assertEquals($user->id, $permission->users->first()->id);
         $this->assertEquals($user->name, $permission->users->first()->name);

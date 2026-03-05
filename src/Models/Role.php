@@ -1,28 +1,19 @@
 <?php
 
-namespace Ultraware\Roles\Models;
+namespace Endone777\Roles\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Ultraware\Roles\Contracts\RoleHasRelations as RoleHasRelationsContract;
-use Ultraware\Roles\Traits\RoleHasRelations;
-use Ultraware\Roles\Traits\Slugable;
+use Endone777\Roles\Contracts\RoleHasRelations as RoleHasRelationsContract;
+use Endone777\Roles\Traits\RoleHasRelations;
+use Endone777\Roles\Traits\Slugable;
 
 class Role extends Model implements RoleHasRelationsContract
 {
-    use Slugable, RoleHasRelations;
+    use HasFactory, Slugable, RoleHasRelations;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = ['name', 'slug', 'description', 'level'];
 
-    /**
-     * Create a new model instance.
-     *
-     * @param array $attributes
-     */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
@@ -30,5 +21,10 @@ class Role extends Model implements RoleHasRelationsContract
         if ($connection = config('roles.connection')) {
             $this->connection = $connection;
         }
+    }
+
+    protected static function newFactory(): \Endone777\Roles\Tests\Database\Factories\RoleFactory
+    {
+        return \Endone777\Roles\Tests\Database\Factories\RoleFactory::new();
     }
 }

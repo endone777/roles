@@ -1,41 +1,17 @@
 <?php
 
-namespace Ultraware\Roles\Middleware;
+namespace Endone777\Roles\Middleware;
 
 use Closure;
-use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
-use Ultraware\Roles\Exceptions\LevelDeniedException;
+use Endone777\Roles\Exceptions\LevelDeniedException;
+use Symfony\Component\HttpFoundation\Response;
 
 class VerifyLevel
 {
-    /**
-     * @var Guard
-     */
-    protected $auth;
-
-    /**
-     * Create a new filter instance.
-     *
-     * @param Guard $auth
-     */
-    public function __construct(Guard $auth)
+    public function handle(Request $request, Closure $next, int $level): Response
     {
-        $this->auth = $auth;
-    }
-
-    /**
-     * Handle an incoming request.
-     *
-     * @param Request $request
-     * @param \Closure $next
-     * @param int $level
-     * @return mixed
-     * @throws \Ultraware\Roles\Exceptions\LevelDeniedException
-     */
-    public function handle($request, Closure $next, $level)
-    {
-        if ($this->auth->check() && $this->auth->user()->level() >= $level) {
+        if (auth()->check() && auth()->user()->level() >= $level) {
             return $next($request);
         }
 

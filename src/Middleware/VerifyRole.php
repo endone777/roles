@@ -1,41 +1,17 @@
 <?php
 
-namespace Ultraware\Roles\Middleware;
+namespace Endone777\Roles\Middleware;
 
 use Closure;
-use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
-use Ultraware\Roles\Exceptions\RoleDeniedException;
+use Endone777\Roles\Exceptions\RoleDeniedException;
+use Symfony\Component\HttpFoundation\Response;
 
 class VerifyRole
 {
-    /**
-     * @var Guard
-     */
-    protected $auth;
-
-    /**
-     * Create a new filter instance.
-     *
-     * @param Guard $auth
-     */
-    public function __construct(Guard $auth)
+    public function handle(Request $request, Closure $next, string $role): Response
     {
-        $this->auth = $auth;
-    }
-
-    /**
-     * Handle an incoming request.
-     *
-     * @param Request $request
-     * @param \Closure $next
-     * @param int|string $role
-     * @return mixed
-     * @throws RoleDeniedException
-     */
-    public function handle($request, Closure $next, $role)
-    {
-        if ($this->auth->check() && $this->auth->user()->hasRole($role)) {
+        if (auth()->check() && auth()->user()->hasRole($role)) {
             return $next($request);
         }
 

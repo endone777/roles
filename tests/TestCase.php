@@ -1,34 +1,24 @@
 <?php
 
-use Illuminate\Support\ServiceProvider;
+namespace Endone777\Roles\Tests;
+
+use Endone777\Roles\RolesServiceProvider;
 use Orchestra\Testbench\TestCase as TestBenchTestCase;
 
-class TestCase extends TestBenchTestCase
+abstract class TestCase extends TestBenchTestCase
 {
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
     }
 
-    protected function getPackageProviders($app)
+    protected function getPackageProviders($app): array
     {
-        return [Ultraware\Roles\RolesServiceProvider::class, TestMigrationsServiceProvider::class];
+        return [RolesServiceProvider::class];
     }
 
-    /**
-     * Resolve application Console Kernel implementation.
-     *
-     * @param  \Illuminate\Foundation\Application $app
-     * @return void
-     */
-    protected function resolveApplicationConsoleKernel($app)
+    protected function getEnvironmentSetUp($app): void
     {
-        $app->singleton(Illuminate\Contracts\Console\Kernel::class, Orchestra\Testbench\Console\Kernel::class);
-    }
-
-    protected function setupDbConfig($app)
-    {
-        // Setup default database to use sqlite :memory:
         $app['config']->set('database.default', 'testbench');
         $app['config']->set('database.connections.testbench', [
             'driver' => 'sqlite',
@@ -37,21 +27,11 @@ class TestCase extends TestBenchTestCase
         ]);
     }
 
-    protected function runMigrations()
-    {
-        $this->loadMigrationsFrom([
-            '--database' => 'testbench',
-        ]);
-    }
-}
-
-class TestMigrationsServiceProvider extends ServiceProvider
-{
-    public function boot()
+    protected function runMigrations(): void
     {
         $this->loadMigrationsFrom([
             realpath(__DIR__ . '/../migrations'),
-            realpath(__DIR__ . '/database/migrations')
+            realpath(__DIR__ . '/database/migrations'),
         ]);
     }
 }

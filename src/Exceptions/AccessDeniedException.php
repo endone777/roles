@@ -1,6 +1,6 @@
 <?php
 
-namespace Ultraware\Roles\Exceptions;
+namespace Endone777\Roles\Exceptions;
 
 use Exception;
 

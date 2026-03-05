@@ -1,40 +1,42 @@
 <?php
 
-use Illuminate\Contracts\Auth\Guard;
+namespace Endone777\Roles\Tests\Middleware;
+
+use Endone777\Roles\Exceptions\RoleDeniedException;
+use Endone777\Roles\Middleware\VerifyRole;
+use Endone777\Roles\Tests\TestCase;
+use Endone777\Roles\Tests\User;
 use Illuminate\Http\Request;
-use Ultraware\Roles\Exceptions\RoleDeniedException;
-use Ultraware\Roles\Middleware\VerifyRole;
+use Mockery;
 
 class VerifyRoleTest extends TestCase
 {
-    public function testUserHasPermission()
+    public function test_user_has_role(): void
     {
-        $guard = \Mockery::mock(Guard::class);
-        $user = \Mockery::mock(User::class);
-        $request = Request();
-        $guard->shouldReceive('check')->once()->withNoArgs()->andReturn(true);
-        $guard->shouldReceive('user')->once()->withNoArgs()->andReturn($user);
+        $user = Mockery::mock(User::class);
         $user->shouldReceive('hasRole')->once()->with('role1')->andReturn(true);
 
-        $verifyRole = new VerifyRole($guard);
-        $result = $verifyRole->handle($request, function (Request $request) {
-            return 'next was called';
+        $this->actingAs($user);
+
+        $middleware = new VerifyRole();
+        $result = $middleware->handle(new Request(), function (Request $request) {
+            return response('next was called');
         }, 'role1');
-        $this->assertEquals('next was called', $result);
+
+        $this->assertEquals('next was called', $result->getContent());
     }
 
-    public function testUserHasPermission_throwsException()
+    public function test_user_has_role_throws_exception(): void
     {
-        $guard = \Mockery::mock(Guard::class);
-        $user = \Mockery::mock(User::class);
-        $request = new Request();
-        $guard->shouldReceive('check')->once()->withNoArgs()->andReturn(true);
-        $guard->shouldReceive('user')->once()->withNoArgs()->andReturn($user);
+        $user = Mockery::mock(User::class);
         $user->shouldReceive('hasRole')->once()->with('role1')->andReturn(false);
 
+        $this->actingAs($user);
+
         $this->expectException(RoleDeniedException::class);
-        $verifyRole = new VerifyRole($guard);
-        $verifyRole->handle($request, function (Request $request) {
+
+        $middleware = new VerifyRole();
+        $middleware->handle(new Request(), function (Request $request) {
         }, 'role1');
     }
 }

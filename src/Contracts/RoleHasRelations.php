@@ -1,55 +1,21 @@
 <?php
 
-namespace Ultraware\Roles\Contracts;
+namespace Endone777\Roles\Contracts;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Ultraware\Roles\Models\Permission;
 
 interface RoleHasRelations
 {
-    /**
-     * Role belongs to many permissions.
-     *
-     * @return BelongsToMany
-     */
-    public function permissions();
+    public function permissions(): BelongsToMany;
 
-    /**
-     * Role belongs to many users.
-     *
-     * @return BelongsToMany
-     */
-    public function users();
+    public function users(): BelongsToMany;
 
-    /**
-     * Attach permission to a role.
-     *
-     * @param int|Permission $permission
-     * @return int|bool
-     */
-    public function attachPermission($permission);
+    public function attachPermission(int|object $permission): int|bool;
 
-    /**
-     * Detach permission from a role.
-     *
-     * @param int|Permission $permission
-     * @return int
-     */
-    public function detachPermission($permission);
+    public function detachPermission(int|object $permission): int;
 
-    /**
-     * Detach all permissions.
-     *
-     * @return int
-     */
-    public function detachAllPermissions();
+    public function detachAllPermissions(): int;
 
-    /**
-     * Sync permissions for a role.
-     *
-     * @param array|Permission[]|Collection $permissions
-     * @return array
-     */
-    public function syncPermissions($permissions);
+    public function syncPermissions(array|Collection $permissions): array;
 }

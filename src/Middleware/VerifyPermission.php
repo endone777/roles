@@ -1,41 +1,17 @@
 <?php
 
-namespace Ultraware\Roles\Middleware;
+namespace Endone777\Roles\Middleware;
 
 use Closure;
-use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
-use Ultraware\Roles\Exceptions\PermissionDeniedException;
+use Endone777\Roles\Exceptions\PermissionDeniedException;
+use Symfony\Component\HttpFoundation\Response;
 
 class VerifyPermission
 {
-    /**
-     * @var Guard
-     */
-    protected $auth;
-
-    /**
-     * Create a new filter instance.
-     *
-     * @param Guard $auth
-     */
-    public function __construct(Guard $auth)
+    public function handle(Request $request, Closure $next, string $permission): Response
     {
-        $this->auth = $auth;
-    }
-
-    /**
-     * Handle an incoming request.
-     *
-     * @param Request $request
-     * @param \Closure $next
-     * @param int|string $permission
-     * @return mixed
-     * @throws \Ultraware\Roles\Exceptions\PermissionDeniedException
-     */
-    public function handle($request, Closure $next, $permission)
-    {
-        if ($this->auth->check() && $this->auth->user()->hasPermission($permission)) {
+        if (auth()->check() && auth()->user()->hasPermission($permission)) {
             return $next($request);
         }
 

@@ -1,49 +1,42 @@
 <?php
 
-use App\User;
-use Illuminate\Database\Eloquent\Collection;
-use Ultraware\Roles\Models\Permission;
-use Ultraware\Roles\Models\Role;
+namespace Endone777\Roles\Tests\Traits;
 
-class HasRoleAndPermissionTest extends \TestCase
+use Endone777\Roles\Models\Permission;
+use Endone777\Roles\Models\Role;
+use Endone777\Roles\Tests\TestCase;
+use Endone777\Roles\Tests\User;
+use Illuminate\Database\Eloquent\Collection;
+use Mockery;
+
+class HasRoleAndPermissionTest extends TestCase
 {
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
-        $this->withFactories(__DIR__ . '/../../database/factories');
     }
 
-    /**
-     * Define environment setup.
-     *
-     * @param  \Illuminate\Foundation\Application $app
-     * @return void
-     */
-    protected function getEnvironmentSetUp($app)
+    protected function getEnvironmentSetUp($app): void
     {
-        $this->setupDbConfig($app);
         parent::getEnvironmentSetUp($app);
+        $app['config']->set('auth.providers.users.model', User::class);
     }
 
-    public function testRolePermissions()
+    public function test_role_permissions(): void
     {
         $this->runMigrations();
 
-        /** @var User $user */
-        $user = factory(User::class)->make();
+        $user = User::factory()->make();
 
-        // roles
         $roles = new Collection([
-            factory(Role::class)->create(),
-            factory(Role::class)->create(),
-            factory(Role::class)->create(['level' => 2]),
-            factory(Role::class)->create(['level' => 3]),
+            Role::factory()->create(),
+            Role::factory()->create(),
+            Role::factory()->create(['level' => 2]),
+            Role::factory()->create(['level' => 3]),
         ]);
-        // permissions
-        /** @var Collection $permissions */
-        $permissions = factory(Permission::class, 8)->create();
 
-        // attach permissions to role
+        $permissions = Permission::factory()->count(8)->create();
+
         $permissions->each(function ($permission, $key) use ($roles) {
             switch ($key) {
                 case 0:
@@ -64,18 +57,16 @@ class HasRoleAndPermissionTest extends \TestCase
                     break;
             }
         });
-        // attach role 0 (without level)
+
         $user->roles()->attach($roles->get(0));
 
-        // only permissions of role 0 should be found
         $this->assertEquals(
             $permissions->toBase()->only([0, 1])->pluck('id')->toArray(),
-            $user->rolePermissions()->get()->pluck('id')->toArray());
+            $user->rolePermissions()->get()->pluck('id')->toArray()
+        );
 
-        // reset cache
         $user->detachRole(null);
 
-        // attach role 2 wich has a level and all lower role.permissions with lower level should also be found
         $user->roles()->attach($roles->get(2));
 
         $this->assertEquals(
@@ -84,9 +75,9 @@ class HasRoleAndPermissionTest extends \TestCase
         );
     }
 
-    public function testHasRole()
+    public function test_has_role(): void
     {
-        $user = \Mockery::mock(User::class . '[hasOneRole]');
+        $user = Mockery::mock(User::class . '[hasOneRole]');
         $user->shouldReceive('hasOneRole')
             ->with('role1')
             ->once()
@@ -94,9 +85,9 @@ class HasRoleAndPermissionTest extends \TestCase
         $this->assertTrue($user->hasRole('role1'));
     }
 
-    public function testHasRole_all()
+    public function test_has_role_all(): void
     {
-        $user = \Mockery::mock(User::class . '[hasAllRoles]');
+        $user = Mockery::mock(User::class . '[hasAllRoles]');
         $user->shouldReceive('hasAllRoles')
             ->with(['role1', 'role2'])
             ->once()
@@ -104,9 +95,9 @@ class HasRoleAndPermissionTest extends \TestCase
         $this->assertTrue($user->hasRole(['role1', 'role2'], true));
     }
 
-    public function testHasOneRole_true()
+    public function test_has_one_role_true(): void
     {
-        $user = \Mockery::mock(User::class . '[checkRole]');
+        $user = Mockery::mock(User::class . '[checkRole]');
         $user->shouldReceive('checkRole')
             ->once()
             ->with('role1')
@@ -120,9 +111,9 @@ class HasRoleAndPermissionTest extends \TestCase
         $this->assertTrue($user->hasOneRole(['role1', 'role2']));
     }
 
-    public function testHasOneRole_false()
+    public function test_has_one_role_false(): void
     {
-        $user = \Mockery::mock(User::class . '[checkRole]');
+        $user = Mockery::mock(User::class . '[checkRole]');
         $user->shouldReceive('checkRole')
             ->once()
             ->with('role1')
@@ -136,9 +127,9 @@ class HasRoleAndPermissionTest extends \TestCase
         $this->assertFalse($user->hasOneRole(['role1', 'role2']));
     }
 
-    public function testHasAllRoles_true()
+    public function test_has_all_roles_true(): void
     {
-        $user = \Mockery::mock(User::class . '[checkRole]');
+        $user = Mockery::mock(User::class . '[checkRole]');
         $user->shouldReceive('checkRole')
             ->once()
             ->with('role1')
@@ -152,9 +143,9 @@ class HasRoleAndPermissionTest extends \TestCase
         $this->assertTrue($user->hasAllRoles(['role1', 'role2']));
     }
 
-    public function testHasOAllRole_false()
+    public function test_has_all_roles_false(): void
     {
-        $user = \Mockery::mock(User::class . '[checkRole]');
+        $user = Mockery::mock(User::class . '[checkRole]');
         $user->shouldReceive('checkRole')
             ->once()
             ->with('role1')
@@ -168,9 +159,9 @@ class HasRoleAndPermissionTest extends \TestCase
         $this->assertFalse($user->hasAllRoles(['role1', 'role2']));
     }
 
-    public function testHasAllRoles_csv()
+    public function test_has_all_roles_csv(): void
     {
-        $user = \Mockery::mock(User::class . '[checkRole]');
+        $user = Mockery::mock(User::class . '[checkRole]');
         $user->shouldReceive('checkRole')
             ->once()
             ->with('role1')
@@ -184,9 +175,9 @@ class HasRoleAndPermissionTest extends \TestCase
         $this->assertTrue($user->hasAllRoles('role1,role2'));
     }
 
-    public function testHasAllRoles_pipe()
+    public function test_has_all_roles_pipe(): void
     {
-        $user = \Mockery::mock(User::class . '[checkRole]');
+        $user = Mockery::mock(User::class . '[checkRole]');
         $user->shouldReceive('checkRole')
             ->once()
             ->with('role1')
@@ -200,10 +191,10 @@ class HasRoleAndPermissionTest extends \TestCase
         $this->assertTrue($user->hasAllRoles('role1| role2'));
     }
 
-    public function testCheckRole()
+    public function test_check_role(): void
     {
-        $user = \Mockery::mock(User::class . '[getRoles]');
-        $roles = factory(Role::class, 4)->make();
+        $user = Mockery::mock(User::class . '[getRoles]');
+        $roles = Role::factory()->count(4)->make();
         $user->shouldReceive('getRoles')
             ->once()
             ->withNoArgs()
@@ -212,9 +203,9 @@ class HasRoleAndPermissionTest extends \TestCase
         $this->assertTrue($user->checkRole($roles->first()->id));
     }
 
-    public function testHasPermission()
+    public function test_has_permission(): void
     {
-        $user = \Mockery::mock(User::class . '[hasOnePermission]');
+        $user = Mockery::mock(User::class . '[hasOnePermission]');
         $user->shouldReceive('hasOnePermission')
             ->with('permission1')
             ->once()
@@ -222,9 +213,9 @@ class HasRoleAndPermissionTest extends \TestCase
         $this->assertTrue($user->hasPermission('permission1'));
     }
 
-    public function testHasPermission_all()
+    public function test_has_permission_all(): void
     {
-        $user = \Mockery::mock(User::class . '[hasAllPermissions]');
+        $user = Mockery::mock(User::class . '[hasAllPermissions]');
         $user->shouldReceive('hasAllPermissions')
             ->with(['permission1', 'permission2'])
             ->once()
@@ -232,9 +223,9 @@ class HasRoleAndPermissionTest extends \TestCase
         $this->assertTrue($user->hasPermission(['permission1', 'permission2'], true));
     }
 
-    public function testHasOnePermission_true()
+    public function test_has_one_permission_true(): void
     {
-        $user = \Mockery::mock(User::class . '[checkPermission]');
+        $user = Mockery::mock(User::class . '[checkPermission]');
         $user->shouldReceive('checkPermission')
             ->once()
             ->with('permission1')
@@ -248,9 +239,9 @@ class HasRoleAndPermissionTest extends \TestCase
         $this->assertTrue($user->hasOnePermission(['permission1', 'permission2']));
     }
 
-    public function testHasOnePermission_false()
+    public function test_has_one_permission_false(): void
     {
-        $user = \Mockery::mock(User::class . '[checkPermission]');
+        $user = Mockery::mock(User::class . '[checkPermission]');
         $user->shouldReceive('checkPermission')
             ->once()
             ->with('permission1')
@@ -264,9 +255,9 @@ class HasRoleAndPermissionTest extends \TestCase
         $this->assertFalse($user->hasOnePermission(['permission1', 'permission2']));
     }
 
-    public function testHasAllPermissions_true()
+    public function test_has_all_permissions_true(): void
     {
-        $user = \Mockery::mock(User::class . '[checkPermission]');
+        $user = Mockery::mock(User::class . '[checkPermission]');
         $user->shouldReceive('checkPermission')
             ->once()
             ->with('permission1')
@@ -280,9 +271,9 @@ class HasRoleAndPermissionTest extends \TestCase
         $this->assertTrue($user->hasAllPermissions(['permission1', 'permission2']));
     }
 
-    public function testHasOAllPermission_false()
+    public function test_has_all_permissions_false(): void
     {
-        $user = \Mockery::mock(User::class . '[checkPermission]');
+        $user = Mockery::mock(User::class . '[checkPermission]');
         $user->shouldReceive('checkPermission')
             ->once()
             ->with('permission1')
@@ -296,9 +287,9 @@ class HasRoleAndPermissionTest extends \TestCase
         $this->assertFalse($user->hasAllPermissions(['permission1', 'permission2']));
     }
 
-    public function testHasAllPermissions_csv()
+    public function test_has_all_permissions_csv(): void
     {
-        $user = \Mockery::mock(User::class . '[checkPermission]');
+        $user = Mockery::mock(User::class . '[checkPermission]');
         $user->shouldReceive('checkPermission')
             ->once()
             ->with('permission1')
@@ -312,9 +303,9 @@ class HasRoleAndPermissionTest extends \TestCase
         $this->assertTrue($user->hasAllPermissions('permission1,permission2'));
     }
 
-    public function testHasAllPermissions_pipe()
+    public function test_has_all_permissions_pipe(): void
     {
-        $user = \Mockery::mock(User::class . '[checkPermission]');
+        $user = Mockery::mock(User::class . '[checkPermission]');
         $user->shouldReceive('checkPermission')
             ->once()
             ->with('permission1')
@@ -328,10 +319,10 @@ class HasRoleAndPermissionTest extends \TestCase
         $this->assertTrue($user->hasAllPermissions('permission1| permission2'));
     }
 
-    public function testCheckPermission()
+    public function test_check_permission(): void
     {
-        $user = \Mockery::mock(User::class . '[getPermissions]');
-        $permissions = factory(Permission::class, 4)->make();
+        $user = Mockery::mock(User::class . '[getPermissions]');
+        $permissions = Permission::factory()->count(4)->make();
         $user->shouldReceive('getPermissions')
             ->once()
             ->withNoArgs()
@@ -340,18 +331,16 @@ class HasRoleAndPermissionTest extends \TestCase
         $this->assertTrue($user->checkPermission($permissions->first()->id));
     }
 
-    public function testMagicCall()
+    public function test_magic_call(): void
     {
-        $user = \Mockery::mock(User::class . '[hasRole,hasPermission]');
+        $user = Mockery::mock(User::class . '[hasRole,hasPermission]');
 
-        //isMyRole
         $user->shouldReceive('hasRole')
             ->once()
             ->with('my.role')
             ->andReturn(true);
         $this->assertTrue($user->callMagic('isMyRole', []));
 
-        //canMyPermission
         $user->shouldReceive('hasPermission')
             ->once()
             ->with('my.permission')

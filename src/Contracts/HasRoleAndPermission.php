@@ -1,194 +1,57 @@
 <?php
 
-namespace Ultraware\Roles\Contracts;
+namespace Endone777\Roles\Contracts;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Ultraware\Roles\Models\Permission;
-use Ultraware\Roles\Models\Role;
 
 interface HasRoleAndPermission
 {
-    /**
-     * User belongs to many roles.
-     *
-     * @return BelongsToMany
-     */
-    public function roles();
+    public function roles(): BelongsToMany;
 
-    /**
-     * Get all roles as collection.
-     *
-     * @return Collection
-     */
-    public function getRoles();
+    public function getRoles(): Collection;
 
-    /**
-     * Check if the user has a role or roles.
-     *
-     * @param int|string|array $role
-     * @param bool $all
-     * @return bool
-     */
-    public function hasRole($role, $all = false);
+    public function hasRole(int|string|array $role, bool $all = false): bool;
 
-    /**
-     * Check if the user has at least one of the given roles.
-     *
-     * @param int|string|array $role
-     * @return bool
-     */
-    public function hasOneRole($role);
+    public function hasOneRole(int|string|array $role): bool;
 
-    /**
-     * Check if the user has all roles.
-     *
-     * @param int|string|array $role
-     * @return bool
-     */
-    public function hasAllRoles($role);
+    public function hasAllRoles(int|string|array $role): bool;
 
-    /**
-     * Check if the user has role.
-     *
-     * @param int|string $role
-     * @return bool
-     */
-    public function checkRole($role);
+    public function checkRole(int|string $role): bool;
 
-    /**
-     * Attach role to a user.
-     *
-     * @param int|Role $role
-     * @return null|bool
-     */
-    public function attachRole($role);
+    public function attachRole(int|Model $role): null|bool;
 
-    /**
-     * Detach role from a user.
-     *
-     * @param int|Role $role
-     * @return int
-     */
-    public function detachRole($role);
+    public function detachRole(int|Model $role): int;
 
-    /**
-     * Detach all roles from a user.
-     *
-     * @return int
-     */
-    public function detachAllRoles();
+    public function detachAllRoles(): int;
 
-    /**
-     * Sync roles for a user.
-     *
-     * @param array|Role[]|Collection $roles
-     * @return array
-     */
-    public function syncRoles($roles);
+    public function syncRoles(array|Collection $roles): array;
 
-    /**
-     * Get role level of a user.
-     *
-     * @return int
-     */
-    public function level();
+    public function level(): int;
 
-    /**
-     * Get all permissions from roles.
-     *
-     * @return Builder
-     */
-    public function rolePermissions();
+    public function rolePermissions(): Builder;
 
-    /**
-     * User belongs to many permissions.
-     *
-     * @return BelongsToMany
-     */
-    public function userPermissions();
+    public function userPermissions(): BelongsToMany;
 
-    /**
-     * Get all permissions as collection.
-     *
-     * @return Collection
-     */
-    public function getPermissions();
+    public function getPermissions(): Collection;
 
-    /**
-     * Check if the user has a permission or permissions.
-     *
-     * @param int|string|array $permission
-     * @param bool $all
-     * @return bool
-     */
-    public function hasPermission($permission, $all = false);
+    public function hasPermission(int|string|array $permission, bool $all = false): bool;
 
-    /**
-     * Check if the user has at least one of the given permissions.
-     *
-     * @param int|string|array $permission
-     * @return bool
-     */
-    public function hasOnePermission($permission);
+    public function hasOnePermission(int|string|array $permission): bool;
 
-    /**
-     * Check if the user has all permissions.
-     *
-     * @param int|string|array $permission
-     * @return bool
-     */
-    public function hasAllPermissions($permission);
+    public function hasAllPermissions(int|string|array $permission): bool;
 
-    /**
-     * Check if the user has a permission.
-     *
-     * @param int|string $permission
-     * @return bool
-     */
-    public function checkPermission($permission);
+    public function checkPermission(int|string $permission): bool;
 
-    /**
-     * Check if the user is allowed to manipulate with entity.
-     *
-     * @param string $providedPermission
-     * @param Model $entity
-     * @param bool $owner
-     * @param string $ownerColumn
-     * @return bool
-     */
-    public function allowed($providedPermission, Model $entity, $owner = true, $ownerColumn = 'user_id');
+    public function allowed(string $providedPermission, Model $entity, bool $owner = true, string $ownerColumn = 'user_id'): bool;
 
-    /**
-     * Attach permission to a user.
-     *
-     * @param int|Permission $permission
-     * @return null|bool
-     */
-    public function attachPermission($permission);
+    public function attachPermission(int|Model $permission): null|bool;
 
-    /**
-     * Detach permission from a user.
-     *
-     * @param int|Permission $permission
-     * @return int
-     */
-    public function detachPermission($permission);
+    public function detachPermission(int|Model $permission): int;
 
-    /**
-     * Detach all permissions from a user.
-     *
-     * @return int
-     */
-    public function detachAllPermissions();
+    public function detachAllPermissions(): int;
 
-    /**
-     * Sync permissions for a user.
-     *
-     * @param array|Permission[]|Collection $permissions
-     * @return array
-     */
-    public function syncPermissions($permissions);
+    public function syncPermissions(array|Collection $permissions): array;
 }
